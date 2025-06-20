@@ -1,13 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 //proyecto final laberinto Angel Gael Andrade Ovalle
-
-int main(){
-    // M es 77 ASCII
-    // . es 46 ASCII
-    // # es 35 ASCII
-    
-    char laberinto[10][10] = {
+char laberinto[10][10] = {
         {'#','#','#','#','#','#','#','#','#','#'},
         {'P','.','#','.','.','.','.','.','.','#'},
         {'#','.','#','.','#','.','#','#','.','#'},
@@ -16,22 +10,60 @@ int main(){
         {'#','.','.','.','.','.','#','.','.','#'},
         {'#','.','#','#','#','.','.','#','.','#'},
         {'#','.','#','.','#','.','#','#','.','#'},
-        {'#','.','.','.','#','.','.','.','.','M'},
+        {'#','.','.','.','#','.','.','.','.','X'},
         {'#','#','#','#','#','#','#','#','#','#'},
     };
 
+extern void PrintMaze(char *matriz, int filas, int cols);
 
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-            if (laberinto[i][j] == '-') {
-                printf("[.]");  // Mostrar camino como punto
-            } else {
-                printf("[%c] ", laberinto[i][j]);  // Mostrar tal cual
-            }
+int menu();
+
+int main(){
+    // M es 77 ASCII
+    // . es 46 ASCII
+    // # es 35 ASCII
+    int respuesta;
+    
+    do{
+        respuesta = menu();
+        switch (respuesta)
+        {
+        case 1:
+            system("cls");
+            PrintMaze(&laberinto[0][0], 10, 10);
+            break;
+    
+        case 2:
+            printf("Saliendo del programa....\n");
+            break;
+        default:
+            printf("\n[ERROR INESPERADO, SELECCIONE UNA RESPUESTA UTIL]\n\n");
+            system("pause");
+            system("cls");
         }
-        printf("\n");
-    }
+
+    }while(respuesta<1 || respuesta>2);
 
     system("pause");
     return 0;
+}
+
+int menu(){
+    int respuesta;
+
+    printf(
+    ".######..#####....####...##..##..#####...##......######..........##...##...####...######..######.\n"
+    "...##....##..##..##..##..##..##..##..##..##......##..............###.###..##..##.....##...##.....\n"
+    "...##....#####...##..##..##..##..#####...##......####............##.#.##..######....##....####...\n"
+    "...##....##..##..##..##..##..##..##..##..##......##..............##...##..##..##...##.....##.....\n"
+    "...##....##..##...####....####...#####...######..######..........##...##..##..##..######..######.\n"
+    ".................................................................................................\n"
+    );
+
+    printf("[ 1 ] EMPEZAR JUEGO\n");
+    printf("[ 2 ] SALIR DE LA PANTALLA\n");
+    printf("SELECCIONE: ");
+
+    scanf("%d",&respuesta);
+    return respuesta;
 }
