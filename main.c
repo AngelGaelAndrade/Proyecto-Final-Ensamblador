@@ -15,13 +15,11 @@ char laberinto[10][10] = {
     };
 
 extern void PrintMaze(char *matriz, int filas, int cols);
+extern int GameTime(char *matriz, int filas, int cols, char movimiento);
 
 int menu();
 
 int main(){
-    // M es 77 ASCII
-    // . es 46 ASCII
-    // # es 35 ASCII
     int respuesta;
     
     do{
@@ -31,6 +29,27 @@ int main(){
         case 1:
             system("cls");
             PrintMaze(&laberinto[0][0], 10, 10);
+            char movimiento;
+
+            while (1) {
+                printf("Ingrese movimiento (w,a,s,d): ");
+                scanf(" %c", &movimiento);
+
+                int resultado = GameTime(&laberinto[0][0], 10, 10, movimiento);
+
+                if (resultado == -1) {
+                    printf("Movimiento inválido, hay muro.\n");
+                } else if (resultado == 1) {
+                    system("cls");
+                    PrintMaze(&laberinto[0][0], 10, 10);
+                    printf("¡Has llegado a la salida!\n");
+                    break;
+                }
+
+                // Limpiar pantalla y volver a imprimir el laberinto, podría ser llamado a ensamblador también
+                system("cls");
+                PrintMaze(&laberinto[0][0], 10, 10);
+            }
             break;
     
         case 2:
