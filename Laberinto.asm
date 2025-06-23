@@ -73,8 +73,6 @@ PrintMaze:
     pop rbp
     ret
 
-
-
 GameTime:
     ; Prólogo estándar Windows x64
     push rbp
@@ -133,6 +131,10 @@ GameTime:
     mov rax, r10        ; rax = nueva columna
 
     ; Verificar movimiento y calcular nueva posición
+    cmp r15b, 'u'       ; Salir del juego
+    je .salir_juego
+    cmp r15b, 'U'       ; Salir del juego (mayúscula)
+    je .salir_juego
     cmp r15b, 'w'       ; Arriba
     je .mover_arriba
     cmp r15b, 's'       ; Abajo
@@ -142,6 +144,10 @@ GameTime:
     cmp r15b, 'd'       ; Derecha
     je .mover_derecha
     jmp .movimiento_invalido
+
+.salir_juego:
+    mov rax, 2          ; Retornar 2 (salir del juego)
+    jmp .fin_game
 
 .mover_arriba:
     dec r11             ; nueva_fila--
@@ -183,12 +189,22 @@ GameTime:
     ; Verificar contenido de la nueva celda
     movzx rcx, byte [r12 + rax]  ; rcx = contenido de nueva celda
 
-    ; Verificar si es la salida
+    ; Verificar colisiones
+    cmp rcx, '#'        ; ¿Es un muro?
+    je .colision_muro
     cmp rcx, 'X'        ; ¿Es la salida?
     je .llegada_salida
+    cmp rcx, '.'        ; ¿Es espacio libre?
+    je .movimiento_valido
 
-    ; Para cualquier otro carácter (incluyendo #, .), permitir movimiento libre
+    ; Si no es ninguno de los anteriores, tratar como espacio libre
     jmp .movimiento_valido
+
+.colision_muro:
+    pop r10             ; Restaurar posición actual
+    pop r9
+    mov rax, -1         ; Retornar -1 (colisión con muro)
+    jmp .fin_game
 
 .llegada_salida:
     ; Mover jugador a la salida
@@ -206,37 +222,28 @@ GameTime:
     jmp .fin_game
 
 .movimiento_valido:
-    ; Realizar el movimiento libre - guardar contenido anterior
-    movzx rdx, byte [r12 + rax]  ; rdx = contenido de la nueva posición
-    mov byte [r12 + rax], 'P'    ; Colocar 'P' en la nueva posición
+    ; Realizar el movimiento
+    mov byte [r12 + rax], 'P'   ; Colocar 'P' en la nueva posición
     
-    ; Restaurar contenido en posición anterior
+    ; Limpiar posición anterior
     pop r10             ; Restaurar posición anterior
     pop r9
     mov rcx, r9         ; rcx = fila anterior
     imul rcx, r14       ; rcx = fila_anterior * columnas
     add rcx, r10        ; rcx = fila_anterior * columnas + columna_anterior
-    mov byte [r12 + rcx], dl    ; Colocar el contenido anterior en la posición previa
+    mov byte [r12 + rcx], '.'   ; Colocar '.' en la posición anterior
     
     mov rax, 0          ; Retornar 0 (movimiento exitoso)
     jmp .fin_game
 
 .movimiento_invalido:
-    mov rax, -1         ; Retornar -1 (solo para límites de la matriz)
+    mov rax, -1         ; Retornar -1 (movimiento inválido)
     jmp .fin_game
 
 .jugador_no_encontrado:
     mov rax, -1         ; Retornar -1 (jugador no encontrado)
 
 .fin_game:
-    ; Epílogo de la función
-    pop r15
-    pop r14
-    pop r13
-    pop r12
-    add rsp, 32         ; Restaurar shadow space
-    pop rbp
-    ret
     ; Epílogo de la función
     pop r15
     pop r14
