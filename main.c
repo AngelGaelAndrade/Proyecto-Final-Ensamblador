@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 //proyecto final laberinto Angel Gael Andrade Ovalle
+
 char laberinto[10][10] = {
         {'#','#','#','#','#','#','#','#','#','#'},
         {'P','.','#','.','.','.','.','.','.','#'},
@@ -15,7 +16,8 @@ char laberinto[10][10] = {
         {'#','#','#','#','#','#','#','#','#','#'},
     };
 
-//funciones de ensamblador hibrido que reciben una matriz dinamica, y un caracter para capturar movimiento.
+//funciones de ensamblador hibrido que reciben una matriz dinamica
+//y un caracter para capturar movimiento.
 extern void PrintMaze(char *matriz, int filas, int cols);
 extern int GameTime(char *matriz, int filas, int cols, char movimiento);
 
@@ -29,6 +31,7 @@ int main(){
     do{
         //llamamos la funcion del menu para tomar la respuesta del juego
         respuesta = menu();
+
         switch (respuesta)
         {
         case 1:
@@ -69,7 +72,6 @@ int main(){
                 PrintMaze(&laberinto[0][0], 10, 10);
         }
         break;
-    
         case 2:
             //si se aprieta la salida antes de iniciar el juego
             printf("Saliendo del programa....\n");

@@ -7,10 +7,11 @@ PrintMaze:
     ; Prólogo estándar Windows x64
     push rbp
     mov rbp, rsp
-    sub rsp, 32         ; Shadow space para Windows x64
+    sub rsp, 48         ; Shadow space + alineación (múltiplo de 16)
     push r12            ; Preservar registros no volátiles
     push r13
     push r14
+    push r15            ; Registro adicional para cálculos
 
     ; Parámetros Windows x64:
     ; rcx = puntero a matriz (primer parámetro)
@@ -33,21 +34,37 @@ PrintMaze:
     jge .nueva_linea    ; Si no, saltar a nueva línea
 
     ; Calcular posición: matriz[i][j] = matriz + (i * columnas + j)
-    mov rax, r9         ; rax = i
-    imul rax, r14       ; rax = i * columnas
-    add rax, r10        ; rax = i * columnas + j
+    mov r15, r9         ; r15 = i
+    imul r15, r14       ; r15 = i * columnas
+    add r15, r10        ; r15 = i * columnas + j
         
     ; Cargar carácter y preparar para putchar
-    movzx rcx, byte [r12 + rax]  ; rcx = matriz[i][j]
+    movzx rcx, byte [r12 + r15]  ; rcx = matriz[i][j]
         
-    ; Guardar registros que putchar puede modificar
+    ; Guardar TODOS los registros volátiles antes de putchar
     push r9
     push r10
+    push r11
+    push rax
+    push rdx
+    push r8
+    
+    ; Asegurar alineación de stack antes de call
+    sub rsp, 8
     call putchar
+    add rsp, 8
         
     ; Imprimir espacio después del carácter
     mov rcx, 32         ; ' ' (espacio)
+    sub rsp, 8
     call putchar
+    add rsp, 8
+    
+    ; Restaurar registros
+    pop r8
+    pop rdx
+    pop rax
+    pop r11
     pop r10
     pop r9
         
@@ -57,19 +74,37 @@ PrintMaze:
 .nueva_linea:
     ; Imprimir salto de línea
     mov rcx, 10         ; '\n'
-    push r9             ; Guardar contador de filas
+    
+    ; Guardar registros antes de putchar
+    push r9
+    push r10
+    push r11
+    push rax
+    push rdx
+    push r8
+    
+    sub rsp, 8          ; Alineación
     call putchar
-    pop r9              ; Restaurar contador de filas
+    add rsp, 8
+    
+    ; Restaurar registros
+    pop r8
+    pop rdx
+    pop rax
+    pop r11
+    pop r10
+    pop r9
         
     inc r9              ; i++
     jmp .loop_filas
 
 .fin:
     ; Epílogo de la función
+    pop r15
     pop r14
     pop r13
     pop r12
-    add rsp, 32         ; Restaurar shadow space
+    add rsp, 48         ; Restaurar shadow space + alineación
     pop rbp
     ret
 
